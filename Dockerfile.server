@@ -1,0 +1,20 @@
+FROM maven:3.9.12-amazoncorretto-25 AS build
+
+WORKDIR /build
+
+COPY . .
+
+EXPOSE 80
+
+RUN mvn -q -DskipTests install
+
+RUN mvn -q -pl hotel_server dependency:copy-dependencies -DincludeScope=runtime -DoutputDirectory=/build/hotel_server/target/dependency
+
+FROM amazoncorretto:25-alpine
+
+WORKDIR /app
+
+COPY --from=build /build/hotel_server/target/hotel_server-1.0-SNAPSHOT.jar hotel-server.jar
+COPY --from=build /build/hotel_server/target/dependency dependency
+
+ENTRYPOINT ["java", "-cp", "hotel-server.jar:dependency/*", "hotel.app.HotelApplServer"]

@@ -1,0 +1,22 @@
+services:
+  hotel-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    image: hotel-server:1.0
+    container_name: h-s
+    env_file: "hotel_server/hotel_server.env"
+    ports:
+      - "2055:2055"
+
+  hotel-client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    image: hotel-client:1.0
+    container_name: h-c
+    stdin_open: true
+    tty: true
+    env_file: "hotel_client/hotel_client.env"
+    depends_on:
+      - hotel-server
